@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🐱 Infinite Cat Scroller</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #111;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin: 20px;
+    }
+
+    #catContainer {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cat-card {
+      background: #222;
+      margin: 15px 0;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .cat-card:hover {
+      transform: scale(1.02);
+    }
+
+    .cat-card img {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    .caption {
+      margin-top: 8px;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    #loading {
+      margin: 30px;
+      font-size: 1.2rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐈 Infinite Cat Scroller</h1>
+  <div id="catContainer"></div>
+  <div id="loading">Loading cats...</div>
+
+  <script>
+    const container = document.getElementById("catContainer");
+    const loading = document.getElementById("loading");
+    let isLoading = false;
+
+    const captions = [
+      "Meow-gnificent!",
+      "Just chillin’ 💤",
+      "Did someone say tuna?",
+      "Catflix and nap 😺",
+      "Paws for attention!",
+      "Looking fur trouble 🐾",
+      "Purrrfection!",
+      "Send treats pls 🐟",
+    ];
+
+    async function loadCats(count = 5) {
+      if (isLoading) return;
+      isLoading = true;
+      loading.style.display = "block";
+
+      try {
+        const res = await fetch(`https://api.thecatapi.com/v1/images/search?limit=${count}`);
+        const cats = await res.json();
+
+        cats.forEach(cat => {
+          const card = document.createElement("div");
+          card.className = "cat-card";
+
+          const img = document.createElement("img");
+          img.src = cat.url;
+          img.alt = "Random Cat";
+
+          const caption = document.createElement("div");
+          caption.className = "caption";
+          caption.textContent = captions[Math.floor(Math.random() * captions.length)];
+
+          card.appendChild(img);
+          card.appendChild(caption);
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        const error = document.createElement("div");
+        error.textContent = "😿 Couldn’t load cats right meow.";
+        container.appendChild(error);
+      }
+
+      loading.style.display = "none";
+      isLoading = false;
+    }
+
+    // Load initial cats
+    loadCats();
+
+    // Infinite scroll
+    window.addEventListener("scroll", () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
+        loadCats();
+      }
+    });
+  </script>
+</body>
+</html>
